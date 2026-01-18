@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, OffreEmploi, Candidature
 from models.schemas import offre_schema, offres_schema, candidats_schema
-from ai_service import AIService
+from services.services import AIService
 
 offer_bp = Blueprint('offers', __name__)
 

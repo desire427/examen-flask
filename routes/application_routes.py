@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.models import db, Candidature, Candidat, OffreEmploi
 from models.schemas import candidature_schema
+from marshmallow import ValidationError
 
 application_bp = Blueprint('applications', __name__)
 
@@ -12,14 +13,22 @@ def create_application():
         if not data:
             return jsonify({"error": "Données JSON requises"}), 400
         
+        # Validation avec Marshmallow (Contrainte technique)
+        try:
+            validated_app = candidature_schema.load(data, session=db.session)
+        except ValidationError as e:
+            return jsonify(e.messages), 400
+        
+        # Récupération des IDs validés
+        candidat_id = validated_app.candidat_id
+        offre_id = validated_app.offre_id
+        
         # Vérifier que le candidat existe
-        candidat_id = data.get('candidat_id')
         candidat = db.session.get(Candidat, candidat_id)
         if not candidat:
             return jsonify({"error": "Candidat non trouvé"}), 404
         
         # Vérifier que l'offre existe
-        offre_id = data.get('offre_id')
         offre = db.session.get(OffreEmploi, offre_id)
         if not offre:
             return jsonify({"error": "Offre non trouvée"}), 404
