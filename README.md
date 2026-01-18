@@ -2,7 +2,7 @@
 
 Une API RESTful moderne développée avec Flask pour la gestion de processus de recrutement. Cette application se distingue par l'intégration d'une **Intelligence Artificielle (Google Gemini)** capable d'analyser automatiquement la compatibilité entre le profil d'un candidat et une offre d'emploi.
 
-## 📋 Fonctionnalités
+## Fonctionnalités
 
 *   **Gestion des Candidats** : Inscription, consultation et gestion des profils candidats.
 *   **Gestion des Offres** : Publication d'offres d'emploi avec compétences requises.
@@ -10,7 +10,7 @@ Une API RESTful moderne développée avec Flask pour la gestion de processus de 
 *   **IA & Matching Intelligent** : Analyse sémantique via Google Gemini pour générer un score de compatibilité (0-100%) et une justification détaillée.
 *   **Architecture Modulaire** : Utilisation de Blueprints, Service Layer et validation stricte des données.
 
-## 🛠 Technologies Utilisées
+## Technologies Utilisées
 
 *   **Backend** : Python 3.12, Flask
 *   **Base de Données** : PostgreSQL, SQLAlchemy (ORM)
@@ -18,7 +18,7 @@ Une API RESTful moderne développée avec Flask pour la gestion de processus de 
 *   **IA** : Google Generative AI (Gemini Pro)
 *   **Sécurité & Config** : Python-dotenv, CORS
 
-## 🚀 Installation et Démarrage
+## Installation et Démarrage
 
 ### 1. Prérequis
 *   Python 3.10 ou supérieur
@@ -73,7 +73,7 @@ python3 app.py
 ```
 L'API sera accessible sur `http://127.0.0.1:5000`.
 
-## 📚 Documentation de l'API
+## Documentation de l'API
 
 ### Candidats
 | Méthode | Endpoint | Description |
@@ -85,9 +85,9 @@ L'API sera accessible sur `http://127.0.0.1:5000`.
 **Exemple JSON (Création) :**
 ```json
 {
-    "nom": "Alice Martin",
-    "email": "alice@example.com",
-    "bio": "Développeuse Python Senior experte en Flask.",
+    "nom": "Prims Parolier",
+    "email": "primsparolier@gmail.com",
+    "bio": "Développeur Python Senior experte en Flask.",
     "diplome": "Master Informatique"
 }
 ```
@@ -105,7 +105,7 @@ L'API sera accessible sur `http://127.0.0.1:5000`.
     "titre": "Backend Developer",
     "description": "Expertise Python requise.",
     "competences_cles": ["Python", "SQL"],
-    "salaire": 55000
+    "salaire": 100000
 }
 ```
 
@@ -115,5 +115,6 @@ L'API sera accessible sur `http://127.0.0.1:5000`.
 | `POST` | `/api/apply` | Postuler à une offre (`candidat_id`, `offre_id`) |
 | `GET` | `/api/applications` | Voir toutes les candidatures |
 
-## 👤 Auteur
+## Auteur  
+Alpohonse Desire HABA  
 Projet réalisé dans le cadre de l'examen Flask.
