@@ -1,0 +1,22 @@
+# Environnements virtuels
+venv/
+env/
+__pycache__/
+
+# Fichiers de configuration sensibles
+.env
+.env.local
+
+# Base de données
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Système
+.DS_Store
