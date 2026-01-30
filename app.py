@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request  # <-- Ajouter 'request' ici
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 from sqlalchemy import inspect, text
 from config import DevelopmentConfig
@@ -62,16 +62,7 @@ def create_app(config_class=DevelopmentConfig):
     # Route racine
     @app.route('/')
     def index():
-        return jsonify({
-            "message": "Bienvenue sur Smart-Recruit API",
-            "version": "1.0.0",
-            "endpoints": {
-                "health": "/health",
-                "candidates": "/api/candidates",
-                "offers": "/api/offers",
-                "applications": "/api/applications"
-            }
-        })
+        return send_file('interface.html')
     
     # Gestionnaire d'erreurs global
     @app.errorhandler(404)

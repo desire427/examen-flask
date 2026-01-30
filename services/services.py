@@ -17,50 +17,75 @@ class AIService:
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(self.model_name)
     
-    def analyze_compatibility(self, offre_description: str, candidat_bio: str) -> Dict[str, Any]:
+    def analyze_compatibility(self, offre_description: str, candidat_bio: str, offre_competences: list = None) -> Dict[str, Any]:
         """
         Analyse la compatibilité entre une offre et un candidat
         
         Args:
             offre_description: Description de l'offre
             candidat_bio: Bio du candidat
+            offre_competences: Liste des compétences requises (optionnel)
             
         Returns:
             Dict avec 'score' et 'justification'
         """
+        competences_str = ", ".join(offre_competences) if offre_competences else "Non spécifiées"
+        
         # Construction du prompt structuré
         prompt = f"""
-        Analyse la compatibilité entre cette offre et ce candidat.
+        Agis comme un expert en recrutement. Analyse la compatibilité entre cette offre et ce candidat.
         
         OFFRE:
-        {offre_description}
+        Description: {offre_description}
+        Compétences techniques requises: {competences_str}
         
         CANDIDAT:
-        {candidat_bio}
+        Profil/Bio: {candidat_bio}
         
-        Réponds EXCLUSIVEMENT au format JSON avec les clés suivantes:
-        1. 'score': un nombre entre 0 et 100 représentant le pourcentage de compatibilité
-        2. 'justification': une brève explication de 200 caractères maximum
+        Réponds UNIQUEMENT avec un objet JSON valide (sans Markdown).
+        Les clés requises sont:
+        1. 'score': un entier de 0 à 100.
+        2. 'justification': une explication courte (max 200 caractères).
         
-        Format de réponse attendu:
+        Exemple de réponse:
         {{
             "score": 85,
-            "justification": "Le candidat possède 3 des 5 compétences requises..."
+            "justification": "Le profil correspond bien aux attentes..."
         }}
         """
         
+        # Paramètres de sécurité pour éviter les blocages (faux positifs)
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+        ]
+        
         try:
             # Appel à l'API Gemini
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(prompt, safety_settings=safety_settings)
             
             # Extraction du JSON de la réponse
-            response_text = response.text.strip()
+            try:
+                response_text = response.text.strip()
+            except ValueError:
+                # Si response.text échoue, c'est souvent dû aux filtres de sécurité
+                current_app.logger.warning(f"Réponse IA bloquée. Feedback: {response.prompt_feedback}")
+                return {
+                    "score": 0,
+                    "justification": "Analyse bloquée par les filtres de sécurité de l'IA."
+                }
             
             # Nettoyage du texte pour extraire le JSON
-            if '```json' in response_text:
-                response_text = response_text.split('```json')[1].split('```')[0].strip()
-            elif '```' in response_text:
-                response_text = response_text.split('```')[1].split('```')[0].strip()
+            # Suppression des balises markdown si présentes
+            response_text = response_text.replace('```json', '').replace('```', '')
+            
+            # On cherche la première accolade ouvrante et la dernière fermante
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}')
+            if start_idx != -1 and end_idx != -1:
+                response_text = response_text[start_idx:end_idx+1]
             
             # Parsing du JSON
             result = json.loads(response_text)
@@ -69,8 +94,15 @@ class AIService:
             if 'score' not in result or 'justification' not in result:
                 raise ValueError("Réponse de l'IA mal formatée")
             
+            # Nettoyage du score (si c'est une string "85%")
+            score_val = result['score']
+            if isinstance(score_val, str):
+                # On garde que les chiffres
+                score_val = ''.join(filter(str.isdigit, score_val))
+                if not score_val: score_val = "0"
+            
             # S'assurer que le score est entre 0 et 100
-            result['score'] = max(0, min(100, int(result['score'])))
+            result['score'] = max(0, min(100, int(score_val)))
             
             # Tronquer la justification si nécessaire
             result['justification'] = result['justification'][:200]
@@ -79,6 +111,14 @@ class AIService:
             
         except json.JSONDecodeError as e:
             current_app.logger.error(f"Erreur de parsing JSON de la réponse IA: {e}")
+            # Tentative de récupération du score via regex en dernier recours
+            import re
+            match = re.search(r'score["\']?\s*:\s*(\d+)', response_text, re.IGNORECASE)
+            if match:
+                return {
+                    "score": int(match.group(1)),
+                    "justification": "Score extrait partiellement (format IA non standard)."
+                }
             return {
                 "score": 0,
                 "justification": "Erreur lors de l'analyse de compatibilité"

@@ -88,7 +88,8 @@ def analyze_match(offer_id):
         # Analyser la compatibilité
         result = ai_service.analyze_compatibility(
             offre_description=offer.description,
-            candidat_bio=candidat.bio
+            candidat_bio=candidat.bio,
+            offre_competences=offer.competences_cles
         )
         
         return jsonify(result), 200

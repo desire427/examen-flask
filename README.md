@@ -30,7 +30,7 @@ Une API RESTful moderne développée avec Flask pour la gestion de processus de 
 Cloner le dépôt et installer les dépendances :
 
 ```bash
-git clone <votre-repo-url>
+git clone https://github.com/desire427/examen-flask.git
 cd smart-recruit-api
 
 # Création de l'environnement virtuel
