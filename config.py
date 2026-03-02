@@ -14,8 +14,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Configuration API Gemini
+    # Modèles disponibles en 2026: gemini-2.5-flash, gemini-2.5-pro, gemini-2.0-flash, etc.
     GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-    GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-pro')
+    GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
     
     # Configuration CORS
     CORS_HEADERS = 'Content-Type'
