@@ -23,10 +23,6 @@ class Config:
 class DevelopmentConfig(Config):
     """Configuration développement"""
     DEBUG = True
-    # Force l'utilisation de PostgreSQL pour ignorer la configuration SQLite du fichier .env
-    # TODO: Remplacez 'password' ci-dessous par votre vrai mot de passe PostgreSQL
-    db_password = os.getenv('DB_PASSWORD', 'desire')
-    SQLALCHEMY_DATABASE_URI = f'postgresql://postgres:{db_password}@localhost:5432/smart_recruit_db'
     
 class ProductionConfig(Config):
     """Configuration production"""
